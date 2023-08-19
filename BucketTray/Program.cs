@@ -46,7 +46,7 @@ namespace BucketTray
             {
                 Visible = true,
                 ContextMenuStrip = _menu,
-                Text = "BucketTray"
+                Text = $"BucketTray Busy - {Bucket.BusyPercent}%"
             };
 
             _icon.MouseClick += Icon_MouseClick;
@@ -62,6 +62,7 @@ namespace BucketTray
             {
                 SettingsHelper.CheckThemeChange();
                 SettingsHelper.ChangeIcon(SettingsHelper.IsLightTheme);
+                _icon.Text = $"BucketTray Busy - {Bucket.BusyPercent}%";
             };
 
             Application.ApplicationExit += (s, e) => 

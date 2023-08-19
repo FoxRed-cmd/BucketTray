@@ -8,6 +8,8 @@ namespace BucketTray
 {
     internal static class Bucket
     {
+        public static int BusyPercent { get; set; }
+
         private static RegistryKey _bucketKey;
         private static PowerShell _powerShell;
         private static long _maxSize;
@@ -89,9 +91,11 @@ namespace BucketTray
             return totalSizeInBytes;
         }
 
-        public static double GetBusyPercent()
+        private static double GetBusyPercent()
         {
-            return Math.Round((double)((double)GetBusyCapacity() * 100 / GetMaxCapacity()), 10);
+            double busyPercent = Math.Round((double)((double)GetBusyCapacity() * 100 / GetMaxCapacity()), 10);
+            BusyPercent = (int)busyPercent;
+            return busyPercent;
         }
 
         public static int GetBusyPercentRounded()
