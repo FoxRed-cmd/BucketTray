@@ -39,6 +39,8 @@ namespace BucketTray
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add("Close", null, (s, e) => Application.Exit());
 
+            if (SettingsHelper.IsAutoStart)
+                ((ToolStripMenuItem)_menu.Items[3]).Checked = true;
 
             _icon = new NotifyIcon()
             {
@@ -60,6 +62,12 @@ namespace BucketTray
             {
                 SettingsHelper.CheckThemeChange();
                 SettingsHelper.ChangeIcon(SettingsHelper.IsLightTheme);
+            };
+
+            Application.ApplicationExit += (s, e) => 
+            {
+                _icon.Visible = false;
+                _icon.Dispose();
             };
 
             Application.Run();
