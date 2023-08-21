@@ -64,7 +64,7 @@ namespace BucketTrayForWin7_
                 SettingsHelper.CheckThemeChange();
                 SettingsHelper.ChangeIcon(SettingsHelper.IsLightTheme);
 
-                if (Bucket.GetMaxCapacity().Count() == 1)
+                if (Bucket.GetMaxCapacity().Min() == Bucket.GetMaxCapacity().Max())
                 {
                     _icon.Text = $"BucketTray Busy ≈ {Bucket.BusyPercent.Sum()}%";
                 }
