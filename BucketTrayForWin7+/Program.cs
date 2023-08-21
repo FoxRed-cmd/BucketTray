@@ -66,14 +66,14 @@ namespace BucketTrayForWin7_
 
                 if (Bucket.BusyPercent.Max() == Bucket.BusyPercent.Min())
                 {
-                    _icon.Text = $"BucketTray Busy - {Bucket.BusyPercent[0]}%";
+                    _icon.Text = $"BucketTray Busy ≈ {Bucket.BusyPercent[0]}%";
                 }
                 else
                 {
                     _icon.Text = "BucketTray Busy:";
                     for (int i = 0; i < Bucket.BusyPercent.Length; i++)
                     {
-                        _icon.Text += $"\n{Bucket.Drives[i]} - {Bucket.BusyPercent[i]}%";
+                        _icon.Text += $"\n{Bucket.Drives[i]} ≈ {Bucket.BusyPercent[i]}%";
                     }
                 }
             };
