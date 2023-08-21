@@ -1,10 +1,11 @@
-﻿using Microsoft.Win32;
-using System.Reflection;
-using System;
-using System.IO;
-using BucketTrayForWin7_;
+﻿using BucketTrayForWin7_;
 using BucketTrayForWin7_.Properties;
+using Microsoft.Win32;
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 internal static class SettingsHelper
 {
@@ -30,9 +31,11 @@ internal static class SettingsHelper
 
     public static void ChangeIcon(bool isLight)
     {
+        int maxPercent = Bucket.GetBusyPercentRounded().ToList().Max();
+
         if (!isLight)
         {
-            switch (Bucket.GetBusyPercentRounded())
+            switch (maxPercent)
             {
                 case 0:
                     if (Program._icon.Icon != Resources.Bin0)
@@ -58,7 +61,7 @@ internal static class SettingsHelper
         }
         else
         {
-            switch (Bucket.GetBusyPercentRounded())
+            switch (maxPercent)
             {
                 case 0:
                     if (Program._icon.Icon != Resources.Bin0B)
@@ -82,7 +85,7 @@ internal static class SettingsHelper
                     break;
             }
         }
-        
+
     }
 
     public static void ReadSettings()
