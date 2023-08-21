@@ -11,6 +11,7 @@ namespace BucketTrayForWin7_
     {
         public static int[] BusyPercent { get; set; }
         public static string[] Drives { get; private set; }
+        public static bool IsOnlyPhysicalSystemDrives { get; private set; }
 
         private static RegistryKey _bucketKey;
         private static List<long> _maxSize;
@@ -33,6 +34,7 @@ namespace BucketTrayForWin7_
 
                 if (bucketsEnum.Length == Drives.Length)
                 {
+                    IsOnlyPhysicalSystemDrives = true;
                     using (_bucketKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BitBucket\Volume"))
                     {
                         List<string> bins = _bucketKey.GetSubKeyNames().ToList();
@@ -63,6 +65,7 @@ namespace BucketTrayForWin7_
                 else
                 {
                     int size = 0;
+                    IsOnlyPhysicalSystemDrives = false;
 
                     using (_bucketKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BitBucket\Volume"))
                     {
