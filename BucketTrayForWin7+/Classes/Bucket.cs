@@ -9,7 +9,7 @@ namespace BucketTrayForWin7_
 {
     internal static class Bucket
     {
-        public static int[] BusyPercent { get; set; }
+        public static double[] BusyPercent { get; set; }
         public static string[] Drives { get; private set; }
         public static bool IsOnlyPhysicalSystemDrives { get; private set; }
 
@@ -103,26 +103,32 @@ namespace BucketTrayForWin7_
             long totalSizeInBytes = 0;
             List<long> busyList = new List<long>();
 
-            if (binPaths.Count == _maxSize.Count)
+            if (binPaths.Count != 0)
             {
-                foreach (var binPath in binPaths)
+                for (int i = 0; i < Drives.Length; i++)
                 {
                     totalSizeInBytes = 0;
-                    foreach (var file in binPath.GetFiles("*", SearchOption.AllDirectories))
+
+                    foreach (var binPath in binPaths)
                     {
-                        totalSizeInBytes += file.Length;
+                        if (binPath.FullName.Contains(Drives[i]))
+                        {
+                            foreach (var file in binPath.GetFiles("*", SearchOption.AllDirectories))
+                            {
+                                totalSizeInBytes += file.Length;
+                            }
+                        }
                     }
+
                     totalSizeInBytes = totalSizeInBytes / (1024 * 1024);
                     busyList.Add(totalSizeInBytes);
                 }
-
                 return busyList;
             }
 
             binPaths = new List<DirectoryInfo>();
             foreach (var drive in Drives)
             {
-
                 totalSizeInBytes = 0;
                 DirectoryInfo recycleBin = new DirectoryInfo($"{drive}$Recycle.Bin");
                 if (recycleBin.Exists)
@@ -141,15 +147,15 @@ namespace BucketTrayForWin7_
 
                             if (binPaths.Find(x => x.FullName == recycleBin.FullName) == null)
                                 binPaths.Add(recycleBin);
-
-                            totalSizeInBytes = totalSizeInBytes / (1024 * 1024);
-                            busyList.Add(totalSizeInBytes);
                         }
                         catch (Exception)
                         {
                             continue;
                         }
                     }
+
+                    totalSizeInBytes = totalSizeInBytes / (1024 * 1024);
+                    busyList.Add(totalSizeInBytes);
                 }
             }
 
@@ -177,19 +183,19 @@ namespace BucketTrayForWin7_
             List<long> capasitys = GetBusyCapacity().ToList();
 
             if (capasitys.Count == 0)
-                BusyPercent = new int[_maxSize.Count];
+                BusyPercent = new double[_maxSize.Count];
 
             for (int i = 0; i < capasitys.Count; i++)
             {
-                busyPercents[i] = Math.Round((double)capasitys[i] * 100 / _maxSize[i]);
+                busyPercents[i] = Math.Round((double)capasitys[i] * 100 / _maxSize[i], 15);
                 if (BusyPercent != null && BusyPercent.Length == _maxSize.Count)
                 {
-                    BusyPercent[i] = (int)busyPercents[i];
+                    BusyPercent[i] = busyPercents[i];
                 }
                 else
                 {
-                    BusyPercent = new int[busyPercents.Length];
-                    BusyPercent[i] = (int)busyPercents[i];
+                    BusyPercent = new double[busyPercents.Length];
+                    BusyPercent[i] = busyPercents[i];
                 }
             }
             return busyPercents;
@@ -240,10 +246,11 @@ namespace BucketTrayForWin7_
                         CreateNoWindow = true,
                         WindowStyle = ProcessWindowStyle.Hidden,
                         FileName = "cmd",
-                        Arguments = $"/c rd /s /q {binPath.FullName}",
+                        Arguments = $"/c cd {binPath.FullName} & rd /s /q {binPath.FullName}",
                     });
                 }
                 binPaths.Clear();
+                BusyPercent = new double[_maxSize.Count];
             }
         }
     }

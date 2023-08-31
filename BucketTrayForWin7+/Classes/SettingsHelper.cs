@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.Win32.TaskScheduler;
 using System.Reflection;
 
 internal static class SettingsHelper
@@ -90,23 +91,35 @@ internal static class SettingsHelper
 
     public static void ReadSettings()
     {
-        if (File.Exists(_path))
-            IsAutoStart = true;
-        else
-            IsAutoStart = false;
+        using (TaskService ts = new TaskService())
+        {
+            if (ts.FindTask("BinStart") != null)
+                IsAutoStart = true;
+            else
+                IsAutoStart = false;
+        }
     }
 
     public static void WriteSettings()
     {
-        if (IsAutoStart && !File.Exists(_path))
+        using (TaskService ts = new TaskService())
         {
-            Create(_path, Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe"));
-            IsAutoStart = true;
-        }
-        else if (File.Exists(_path))
-        {
-            File.Delete(_path);
-            IsAutoStart = false;
+            if (IsAutoStart && ts.FindTask("BinStart") == null)
+            {
+                TaskDefinition td = ts.NewTask();
+                td.Triggers.Add(new LogonTrigger() { UserId = $"{Environment.UserDomainName}\\{Environment.UserName}", Enabled = true });
+                td.Actions.Add(new ExecAction(Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe")));
+                td.Principal.RunLevel = TaskRunLevel.Highest;
+                td.Settings.DisallowStartIfOnBatteries = false;
+                ts.RootFolder.RegisterTaskDefinition(@"BinStart", td);
+
+                IsAutoStart = true;
+            }
+            else
+            {
+                ts.RootFolder.DeleteTask("BinStart");
+                IsAutoStart = false;
+            }
         }
     }
 

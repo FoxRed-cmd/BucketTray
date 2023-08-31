@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace BucketTrayForWin7_
@@ -66,14 +67,14 @@ namespace BucketTrayForWin7_
 
                 if (Bucket.GetMaxCapacity().Min() == Bucket.GetMaxCapacity().Max() && !Bucket.IsOnlyPhysicalSystemDrives)
                 {
-                    _icon.Text = $"BucketTray Busy ≈ {Bucket.BusyPercent.Sum()}%";
+                    _icon.Text = $"BucketTray Busy ≈ {Math.Round(Bucket.BusyPercent.Sum(), 1)}%";
                 }
                 else
                 {
                     _icon.Text = "BucketTray Busy:";
                     for (int i = 0; i < Bucket.BusyPercent.Length; i++)
                     {
-                        _icon.Text += $"\n{Bucket.Drives[i]} ≈ {Bucket.BusyPercent[i]}%";
+                        _icon.Text += $"\n{Bucket.Drives[i]} ≈ {Math.Round(Bucket.BusyPercent[i], 1)}%";
                     }
                 }
             };
