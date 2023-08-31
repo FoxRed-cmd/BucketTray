@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace BucketTrayForWin7_
 {
@@ -11,6 +13,7 @@ namespace BucketTrayForWin7_
         static void Main(string[] args)
         {
             SettingsHelper.ReadSettings();
+            Bucket.GetBusyPercent();
 
             _menu = new ContextMenuStrip()
             {
@@ -46,7 +49,6 @@ namespace BucketTrayForWin7_
             {
                 Visible = true,
                 ContextMenuStrip = _menu,
-                Text = $"BucketTray Busy - {Bucket.BusyPercent}%"
             };
 
             _icon.MouseClick += Icon_MouseClick;
@@ -62,7 +64,19 @@ namespace BucketTrayForWin7_
             {
                 SettingsHelper.CheckThemeChange();
                 SettingsHelper.ChangeIcon(SettingsHelper.IsLightTheme);
-                _icon.Text = $"BucketTray Busy - {Bucket.BusyPercent}%";
+
+                if (Bucket.GetMaxCapacity().Min() == Bucket.GetMaxCapacity().Max() && !Bucket.IsOnlyPhysicalSystemDrives)
+                {
+                    _icon.Text = $"BucketTray Busy ≈ {Math.Round(Bucket.BusyPercent.Sum(), 1)}%";
+                }
+                else
+                {
+                    _icon.Text = "BucketTray Busy:";
+                    for (int i = 0; i < Bucket.BusyPercent.Length; i++)
+                    {
+                        _icon.Text += $"\n{Bucket.Drives[i]} ≈ {Math.Round(Bucket.BusyPercent[i], 1)}%";
+                    }
+                }
             };
 
             Application.ApplicationExit += (s, e) =>
